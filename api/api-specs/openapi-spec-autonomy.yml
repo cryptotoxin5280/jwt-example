@@ -1,0 +1,1762 @@
+openapi: '3.0.2'
+info:
+  title: Sea-Machines Robotics
+  description: Autonomy Controller API
+  version: '1.9'
+servers:
+  - url: https://autonomy.sea-machines.local/api/v1.9
+components:
+  schemas:
+    AlarmConfig:
+      type: object
+      properties:
+        origin:
+          type:
+            string
+        type:
+          type: string
+        isEnabled:
+          type: boolean
+        triggerValue:
+          type: number
+    EnableResp:
+      type: object
+      properties:
+        device:
+          type: string
+        isEnabled:
+          type: boolean
+    ErrorResp:
+      type: object
+      properties:
+        error:
+          type: string
+    MissionReq:
+      type: object
+      properties:
+        type:
+          type: string
+        lastUpdate:
+          type: integer
+        leashTimeout:
+          type: number
+        avoidance:
+          type: boolean
+        boudningPolygon:
+          type: string
+        minDepth:
+          type: number
+        depthAvoidance:
+          type: boolean
+        seaKeeping:
+          type: boolean
+        caActivationDistance:
+          type: integer
+    MissionResp:
+      type: object
+      properties:
+        missionId:
+          type: integer
+        type:
+          type: string
+        lastUpdate:
+          type: integer
+        leashTimeout:
+          type: number
+        avoidance:
+          type: boolean
+        boudningPolygon:
+          type: string
+        minDepth:
+          type: number
+        depthAvoidance:
+          type: boolean
+        seaKeeping:
+          type: boolean
+        caActivationDistance:
+          type: integer    
+    WaypointMission:
+      type: object
+      properties:
+        missionId:
+          type: integer
+        name:
+          type: string
+        lastUpdatedAt: 
+          type: integer
+        minLat:
+          type: number
+        minLon:
+          type: number
+        maxLat:
+          type: number
+        maxLon:
+          type: number
+        waypointCount:
+          type: integer
+        defaultTurnSpeed:
+          type: number
+        corridorWidth:
+          type: number
+        defaultLegSpeed:
+          type: number
+        apprType:
+          type: integer
+        apprRadius:
+          type: number
+        stayOnline:
+          type: boolean
+        repeatMission:
+          type: boolean
+        boundingAreaMargin:
+          type: integer
+        seaKeeping:
+          type: boolean
+        
+tags:
+- name: 'alarmConfigs'
+  description: 'Configure alarms'
+- name: 'ais'
+  description: 'Control the AIS'
+- name: 'auth'
+  description: 'Authentication'
+- name: 'aux'
+  description: 'Control auxililary behavior'
+- name: 'bilgePumps'
+  description: 'Control the bilge pumps'
+- name: 'blowers'
+  description: 'Control the blowers'
+- name: 'cameras'
+  description: 'Control the cameras'
+- name: 'charts'
+  description: 'Configure the onboard nautical charts'
+- name: 'engines'
+  description: 'Control the engines'
+- name: 'gps'
+  description: 'Control the GPS'
+- name: 'helm'
+  description: 'Control the helm'
+- name: 'horn'
+  description: 'Control the horn'
+- name: 'lights'
+  description: 'Control the lights'
+- name: 'missions'
+  description: 'Mission Control'
+- name: 'navigation'
+  description: 'Control navagation behavior'
+- name: 'radar'
+  description: 'Control the radar'
+- name: 'radio'
+  description: 'Control the radio'
+- name: 'vsat'
+  description: 'Control the VSAT'
+paths:
+  /alarmConfigs:
+    get:
+      tags:
+        - 'alarmConfigs'
+      summary: 'Get ALL alarm configs'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  alarms:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AlarmConfig'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+    put:
+      tags:
+        - 'alarmConfigs'
+      summary: 'Configure an alarm'
+      parameters:
+        - in: path
+          name: 'origin'
+          schema:
+            type: string
+          required: true
+          description: 'The origin of the alarm'
+        - in: path
+          name: 'type'
+          schema:
+            type: string
+          required: true
+          description: 'The type of alarm'
+        - in: path
+          name: 'isEnabled'
+          schema:
+            type: boolean
+          required: true
+          description: 'Toggles whether the alarm is on/off'
+        - in: path
+          name: 'triggerValue'
+          schema:
+            type: number
+          required: true
+          description: 'The value at which this alarm should be triggered'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlarmConfig'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /alarmConfigs/{alarmName}:
+    get:
+      tags:
+        - 'alarmConfigs'
+      summary: 'Get the config for a specified alarm'
+      parameters:
+        - in: path
+          name: 'alarmName'
+          schema:
+            type: string
+          required: true
+          description: 'The name of the alarm'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlarmConfig'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /ais:
+    get:
+      tags:
+        - 'ais'
+      summary: 'Get AIS on/off state'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnableResp'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /ais/{state}:
+    put:
+      tags:
+        - 'ais'
+      summary: 'Set AIS on/off'
+      parameters:
+        - in: path
+          name: 'isEnabled'
+          schema:
+            type: boolean
+          required: true
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnableResp'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /auth/requestToken:
+    get:
+      tags:
+        - "auth"
+      summary: 'Request an authentication token'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /aux/{portNumber}:
+    get:
+      tags:
+        - 'aux'
+      summary: 'Get AUXILIARY port on/off state'
+      responses:
+        '200':
+          description: 'OK'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /aux/{portNumber}/{state}:
+    put:
+      tags:
+        - 'aux'
+      summary: 'Set AUXILIARY port on/off state'
+      responses:
+        '200':
+          description: 'OK'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /bilgePumps:
+    get:
+      tags:
+        - 'bilgePumps'
+      summary: 'Get the on/off state of ALL bilge pumps'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bilgePumps:
+                    type: array
+                    items:
+                      properties:
+                          bilgePumpNumber:
+                            type: integer
+                          isEnabled:
+                            type:
+                              boolean
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /bilgePumps/{bilgePumpNumber}:
+    get:
+      tags:
+        - 'bilgePumps'
+      summary: 'Get BILGE PUMP on/off state'
+      parameters:
+        - in: path
+          name: 'bilgePumpNumber'
+          schema:
+            type: integer
+          required: true
+          description: 'The bilge pump identifier'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bilgePumpNumber:
+                    type: integer
+                  isEnabled:
+                    type:
+                      boolean
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /bilgePumps/{isEnabled}:
+    put:
+      tags:
+        - 'bilgePumps'
+      summary: 'Set the on/off state of ALL bilge pumps'
+      parameters:
+        - in: path
+          name: 'isEnabled'
+          schema:
+            type: boolean
+          required: true
+          description: 'The on/off state of the bilge pumps'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bilgePumps:
+                    type: array
+                    items:
+                      properties:
+                          bilgePumpNumber:
+                            type: integer
+                          isEnabled:
+                            type:
+                              boolean
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /bilgePumps/{bilgePumpNumber}/{isEnabled}:
+    put:
+      tags:
+        - 'bilgePumps'
+      summary: 'Set BILGE PUMP on/off state'
+      parameters:
+        - in: path
+          name: 'bilgePumpNumber'
+          schema:
+            type: integer
+          required: true
+          description: 'The bilge pump identifier'
+        - in: path
+          name: 'isEnabled'
+          schema:
+            type: integer
+          required: true
+          description: 'The on/off state of the bilge pump'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bilgePumpNumber:
+                    type: integer
+                  isEnabled:
+                    type:
+                      boolean
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /blowers:
+    get:
+      tags:
+        - 'blowers'
+      summary: 'Get the on/off state of ALL blowers'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  blowers:
+                    type: array
+                    items:
+                      properties:
+                          blowerNumber:
+                            type: integer
+                          isEnabled:
+                            type:
+                              boolean
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /blowers/{blowerNumber}:
+    get:
+      tags:
+        - 'blowers'
+      summary: 'Get BLOWER on/off state'
+      parameters:
+        - in: path
+          name: 'blowerNumber'
+          schema:
+            type: integer
+          required: true
+          description: 'The blower identifier'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bilgePumpNumber:
+                    type: integer
+                  isEnabled:
+                    type:
+                      boolean
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /blowers/{isEnabled}:
+    put:
+      tags:
+        - 'blowers'
+      summary: 'Set the on/off state of ALL blowers'
+      parameters:
+        - in: path
+          name: 'isEnabled'
+          schema:
+            type: boolean
+          required: true
+          description: 'The on/off state of the blowers'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  blowers:
+                    type: array
+                    items:
+                      properties:
+                          blowerNumber:
+                            type: integer
+                          isEnabled:
+                            type:
+                              boolean
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /blowers/{blowerNumber}/{isEnabled}:
+    put:
+      tags:
+        - 'blowers'
+      summary: 'Set BLOWER on/off state'
+      parameters:
+        - in: path
+          name: 'blowerNumber'
+          schema:
+            type: integer
+          required: true
+          description: 'The blower identifier'
+        - in: path
+          name: 'isEnabled'
+          schema:
+            type: integer
+          required: true
+          description: 'The on/off state of the blower'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  blowerNumber:
+                    type: integer
+                  isEnabled:
+                    type:
+                      boolean
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /cameras:
+    get:
+      tags:
+        - 'cameras'
+      summary: 'Get the on/off state of ALL cameras'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cameras:
+                    type: array
+                    items:
+                      properties:
+                          cameraNumber:
+                            type: integer
+                          isEnabled:
+                            type:
+                              boolean
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /cameras/{cameraNumber}:
+    get:
+      tags:
+        - 'cameras'
+      summary: 'Get CAMERA on/off state'
+      parameters:
+        - in: path
+          name: 'cameraNumber'
+          schema:
+            type: integer
+          required: true
+          description: 'The camera identifier'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cameraNumber:
+                    type: integer
+                  isEnabled:
+                    type:
+                      boolean
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /cameras/{isEnabled}:
+    put:
+      tags:
+        - 'cameras'
+      summary: 'Set the on/off state of ALL cameras'
+      parameters:
+        - in: path
+          name: 'isEnabled'
+          schema:
+            type: boolean
+          required: true
+          description: 'The on/off state of the cameras'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cameras:
+                    type: array
+                    items:
+                      properties:
+                          cameraNumber:
+                            type: integer
+                          isEnabled:
+                            type:
+                              boolean
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /cameras/{cameraNumber}/{isEnabled}:
+    put:
+      tags:
+        - 'cameras'
+      summary: 'Set CAMERA on/off state'
+      parameters:
+        - in: path
+          name: 'cameraNumber'
+          schema:
+            type: integer
+          required: true
+          description: 'The camera identifier'
+        - in: path
+          name: 'isEnabled'
+          schema:
+            type: integer
+          required: true
+          description: 'The on/off state of the camera'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cameraNumber:
+                    type: integer
+                  isEnabled:
+                    type:
+                      boolean
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /charts:
+    post:
+      tags:
+        - "charts"
+      summary: 'Upload a collection of nautical charts'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+    get:
+      tags:
+        - "charts"
+      summary: 'List the onboard nautical charts'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  charts:
+                    type: array
+                    items:
+                      properties:
+                          chartName:
+                            type: string
+                          fileName:
+                            type: string
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+    delete:
+      tags:
+        - "charts"
+      summary: 'Purge the onboard nautical charts'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /chartsPermit:
+    post:
+      tags:
+        - "charts"
+      summary: 'Upload the permit file'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+    get:
+      tags:
+        - 'charts'
+      summary: 'Get the chart permit filename'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fileName:
+                    type: string
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+    delete:
+      tags:
+        - "charts"
+      summary: 'Delete the permit file'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /engines/{engineNumber}/start:
+     put:
+      tags:
+        - 'engines'
+      summary: 'Start the specified engine'
+      parameters:
+        - in: path
+          name: 'engineNumber'
+          schema:
+            type: integer
+          required: true
+          description: 'The engine number'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /engines/{engineNumber}/stop:
+    put:
+      tags:
+        - 'engines'
+      summary: 'Stop the specified engine'
+      parameters:
+        - in: path
+          name: 'engineNumber'
+          schema:
+            type: integer
+          required: true
+          description: 'The engine number'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /engines/start:
+     put:
+      tags:
+        - 'engines'
+      summary: 'Start ALL engines'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /engines/stop:
+    put:
+      tags:
+        - 'engines'
+      summary: 'Stop ALL engines'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /gps:
+    get:
+      tags:
+        - 'gps'
+      summary: 'Get GPS on/off state'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnableResp'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /gps/{state}:
+    put:
+      tags:
+        - 'gps'
+      summary: 'Set GPS on/off state'
+      parameters:
+        - in: path
+          name: 'isEnabled'
+          schema:
+            type: boolean
+          required: true
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnableResp'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /helm/override:
+    put:
+      tags:
+        - 'helm'
+      summary: 'Override control of the helm'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                takeControl:
+                  type: boolean
+                speed:
+                  type: integer
+                heading:
+                  type: integer
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /helm/reverse:
+    put:
+      tags:
+        - 'helm'
+      summary: 'Reverse the vessel'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /horn:
+    post:
+      tags:
+        - 'horn'
+      summary: 'HORN (Short Blast)'
+      responses:
+        '200':
+          description: 'OK'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /lights:
+    get:
+      tags:
+        - 'lights'
+      summary: 'Get the on/off state of ALL lights'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  lights:
+                    type: array
+                    items:
+                      properties:
+                          lightNumber:
+                            type: integer
+                          isEnabled:
+                            type:
+                              boolean
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /lights/{lightNumber}:
+    get:
+      tags:
+        - 'lights'
+      summary: 'Get LIGHT off/on state'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnableResp'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /lights/{isEnabled}:
+    put:
+      tags:
+        - 'lights'
+      summary: 'Set the on/off state of ALL lights'
+      parameters:
+        - in: path
+          name: 'isEnabled'
+          schema:
+            type: boolean
+          required: true
+          description: 'The on/off state of the lights'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  lights:
+                    type: array
+                    items:
+                      properties:
+                          lightNumber:
+                            type: integer
+                          isEnabled:
+                            type:
+                              boolean
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /lights/{lightNumber}/{isEnabled}:
+    put:
+      tags:
+        - 'lights'
+      summary: 'Set LIGHT off/on state'
+      parameters:
+        - in: path
+          name: 'lightNumber'
+          schema:
+            type: integer
+          required: true
+          description: 'The light identifier'
+        - in: path
+          name: 'isEnabled'
+          schema:
+            type: boolean
+          required: true
+          description: 'The on/off state of the light'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnableResp'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /missions:
+    post:
+      tags: 
+        - 'missions'
+      summary: 'Create a mission'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MissionReq'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MissionResp'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+    get:
+      tags: 
+        - 'missions'
+      summary: 'Retrieve ALL mission configurations'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MissionResp'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+    delete:
+      tags: 
+        - 'missions'
+      summary: 'Delete ALL mission configurations'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /missions/{missionId}:
+    get:
+      tags:
+        - 'missions'
+      summary: 'Retrieve a specified mission configuration'
+      parameters:
+        - name: missionId
+          in: path
+          description: Mission ID
+          required: true
+          schema:
+            type: string
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MissionResp'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+    delete:
+      tags:
+        - 'missions'
+      summary: 'Delete a specified mission configuration'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /missions/{missionId}/execute:
+    post:
+      tags:
+        - 'missions'
+      summary: 'Execute the specified mission'
+      parameters:
+        - name: missionId
+          in: path
+          description: Mission ID
+          required: true
+          schema:
+            type: string
+            format: int64
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /missions/abort:
+    put:
+      tags:
+        - 'missions'
+      summary: 'Abort the active mission'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /missions/pause:
+    put:
+      tags:
+        - 'missions'
+      summary: 'Pause the active mission'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /missions/resume:
+    put:
+      tags:
+        - 'missions'
+      summary: 'Resume the paused mission'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /navigation/origin/{lat}/{lon}:
+    put:
+      tags:
+        - 'navigation'
+      summary: 'Set the point of origin'
+      parameters:
+        - in: path
+          name: 'lat'
+          schema:
+            type: number
+          required: true
+        - in: path
+          name: 'lon'
+          schema:
+            type: number
+          required: true
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '501':
+          description: 'Not Implemented'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    default: 'This API endpoint has not yet been implemented'
+  /radar:
+    get:
+      tags:
+        - 'radar'
+      summary: 'Get RADAR on/off state'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnableResp'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /radar/{isEnabled}:
+    put:
+      tags:
+        - 'radar'
+      summary: 'Set RADAR on/off state'
+      parameters:
+        - in: path
+          name: 'isEnabled'
+          schema:
+            type: boolean
+          required: true
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnableResp'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /radio:
+    get:
+      tags:
+        - 'radio'
+      summary: 'Get RADIO on/off state'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnableResp'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /radio/{isEnabled}:
+    put:
+      tags:
+        - 'radio'
+      summary: 'Set RADIO on/off state'
+      parameters:
+        - in: path
+          name: 'isEnabled'
+          schema:
+            type: boolean
+          required: true
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnableResp'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /vsat:
+    get:
+      tags:
+        - 'vsat'
+      summary: 'Get VSAT on/off state'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnableResp'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+  /vsat/{isEnabled}:
+    put:
+      tags:
+        - 'vsat'
+      summary: 'Set VSAT on/off state'
+      parameters:
+        - in: path
+          name: 'isEnabled'
+          schema:
+            type: boolean
+          required: true
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnableResp'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResp'
